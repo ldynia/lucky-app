@@ -1,0 +1,55 @@
+version: "3"
+services:
+  proxy:
+    image: lucky-proxy
+    restart: always
+    container_name: lucky_proxy
+    hostname: lucky-proxy
+    depends_on:
+      - frontend
+      - movie
+      - music
+    ports:
+      - "800:80"
+
+  frontend:
+    image: lucky-frontend
+    restart: always
+    container_name: lucky_app_frontend
+    hostname: lucky-frontend
+    ports:
+      - "801:80"
+
+  movie:
+    image: lucky-movie
+    restart: always
+    container_name: lucky_app_movie_api
+    hostname: lucky-movie
+    ports:
+      - "802:80"
+
+  music:
+    image: lucky-music
+    restart: always
+    container_name: lucky_app_music_api
+    hostname: lucky-music
+    ports:
+      - "803:80"
+
+  firefoxdriver:
+    image: selenium/standalone-firefox
+    restart: always
+    container_name: lucky_firefoxdriver
+    hostname: lucky-firefoxdriver
+    depends_on:
+      - proxy
+    ports:
+      - "4444:4444"
+
+  testing:
+    image: lucky-testing
+    restart: always
+    container_name: lucky_testing
+    hostname: lucky-testing
+    depends_on:
+      - firefoxdriver

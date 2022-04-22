@@ -1,0 +1,64 @@
+version: "3"
+services:
+  proxy:
+    image: lucky-proxy
+    build:
+      context: proxy
+      dockerfile: Dockerfile
+    container_name: lucky_proxy
+    hostname: lucky-proxy
+    depends_on:
+      - frontend
+      - movie
+      - music
+    ports:
+      - "800:80"
+    volumes:
+      - ./proxy/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy/config/default.conf:/etc/nginx/conf.d/default.conf
+
+  frontend:
+    image: lucky-frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: lucky_frontend
+    hostname: lucky-frontend
+    ports:
+      - "801:80"
+    volumes:
+      - ./frontend/app:/app
+      - ./frontend/app/src:/usr/share/nginx/html
+      - ./frontend/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/config/default.conf:/etc/nginx/conf.d/default.conf
+
+  movie:
+    image: lucky-movie
+    build:
+      context: backend/movie
+      dockerfile: Dockerfile
+      args:
+        - PORT=80
+        - FLASK_DEBUG=False
+    restart: always
+    container_name: lucky_api_movie
+    hostname: lucky-api-movie
+    ports:
+      - "802:80"
+    volumes:
+      - ./backend/movie/app:/app
+
+  music:
+    image: lucky-music
+    build:
+      context: backend/music
+      dockerfile: docker/Dockerfile.prod
+      args:
+        - PORT=80
+        - ASPNETCORE_ENVIRONMENT=Production
+    restart: always
+    container_name: lucky_api_music
+    hostname: lucky-api-music
+    ports:
+      - "803:80"

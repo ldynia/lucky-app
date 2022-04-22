@@ -1,0 +1,134 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: devops-template-cd
+
+pool:
+  vmImage: ubuntu-latest
+
+trigger:
+  - none
+
+parameters:
+  - name: environment
+    type: string
+    displayName: Deploy To Environment
+    default: dev
+    values:
+      - dev
+      - prod
+
+variables:
+  - name: acr
+    value: eartsandbox.azurecr.io
+  - name: adoEnvironment
+    value: eart-sandbox
+  - name: namespace
+    value: lucky-app
+  - name: environment
+    ${{ if not(eq(parameters.environment, 'none')) }}:
+      value: ${{ parameters.environment }}
+
+stages:
+  - stage: Migration
+    displayName: Migration
+    jobs:  
+      - job: Migration
+        displayName: Migration
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Docker Images From CI Pipeline Artifact(s)
+            inputs:
+              artifact: docker-images-${{ variables.environment }}
+              path: $(Build.ArtifactStagingDirectory)
+              pipeline: xldyn-devops-template-ci
+              project: $(System.TeamProject)
+              runVersion: latest
+              source: specific
+              patterns: |
+                lucky-frontend.latest.img.tar
+                lucky-movie.latest.img.tar
+                lucky-music.latest.img.tar
+          
+          - script: |
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-movie.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-music.latest.img.tar
+              
+              docker tag lucky-frontend:latest ${{ variables.acr }}/lucky-frontend:$(Build.BuildId)
+              docker tag lucky-movie:latest ${{ variables.acr }}/lucky-movie:$(Build.BuildId)
+              docker tag lucky-music:latest ${{ variables.acr }}/lucky-music:$(Build.BuildId)
+            displayName: Load & Tag Docker images
+
+          - task: Docker@2
+            displayName: Push Frontend Image To Azure Container Registry
+            inputs:
+              addBaseImageData: true
+              addPipelineData: true
+              command: push
+              containerRegistry: sc-acr-eartsandbox
+              repository: lucky-frontend
+              tags: $(Build.BuildId)
+          
+          - task: Docker@2
+            displayName: Push Movie Image To Azure Container Registry
+            inputs:
+              addBaseImageData: true
+              addPipelineData: true
+              command: push
+              containerRegistry: sc-acr-eartsandbox
+              repository: lucky-movie
+              tags: $(Build.BuildId)
+          
+          - task: Docker@2
+            displayName: Push Music Image To Azure Container Registry
+            inputs:
+              addBaseImageData: true
+              addPipelineData: true
+              command: push
+              containerRegistry: sc-acr-eartsandbox
+              repository: lucky-music
+              tags: $(Build.BuildId)
+
+  - stage: Deploy
+    dependsOn: [Migration]
+    displayName: Deploy
+    jobs:
+    - deployment: Deploy
+      displayName: Deploy
+      environment: ${{ variables.adoEnvironment }}.${{ variables.namespace }}
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+
+              - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+                displayName: Replace Tokens In YAML Files
+                inputs:
+                  actionOnMissing: fail
+                  rootDirectory: $(Build.SourcesDirectory)/devops/kubernetes/yaml
+                  keepToken: false
+                  tokenPrefix: '$('
+                  tokenSuffix: ')'
+                  targetFiles: | 
+                    deployment.yaml
+                    service.yaml                
+                    ingress.yaml
+
+              - script: |
+                  cat $(Build.SourcesDirectory)/devops/kubernetes/yaml/*
+                displayName: Display YAML files
+
+              - task: KubernetesManifest@0
+                displayName: Deploy To K8S Cluster
+                inputs:
+                  action: deploy
+                  namespace: ${{ variables.namespace }}
+                  rolloutStatusTimeout: 60
+                  manifests: |
+                    $(Build.SourcesDirectory)/devops/kubernetes/yaml/deployment.yaml
+                    $(Build.SourcesDirectory)/devops/kubernetes/yaml/service.yaml
+                    $(Build.SourcesDirectory)/devops/kubernetes/yaml/ingress.yaml

@@ -1,0 +1,111 @@
+# https://aka.ms/yaml
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/?view=azure-devops
+
+name: devops-template-ci
+
+pool:
+  vmImage: ubuntu-latest
+
+trigger:
+  - main
+
+stages:
+  - stage: BuildDev
+    displayName: Build Dev
+    jobs:
+      - job: BuildDev
+        displayName: Build Dev
+        variables:
+          - group: xldyn-devops-template-ct-dev
+        steps:
+          - checkout: self
+            submodules: true
+            displayName: Initialize Git Repo
+
+          - script: |
+              echo "Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)"
+              echo "Build.BuildId: $(Build.BuildId)"
+              echo "environment: $(environment)"
+              echo "Pipeline.Workspace: $(Pipeline.Workspace)"
+              echo "System.DefaultWorkingDirector: $(System.DefaultWorkingDirectory)"
+              echo "System.DefinitionId: $(System.DefinitionId)"
+              echo "System.TeamProject: $(System.TeamProject)"
+              echo "System.TeamProjectId: $(System.TeamProjectId)"
+            displayName: Debug
+
+          - task: DockerCompose@0
+            displayName: Build Docker Images
+            inputs:
+              action: Build services
+              dockerComposeFile: docker-compose.dev.yaml
+              projectName: $(Build.Repository.Name)
+              qualifyImageNames: true
+              additionalImageTags: $(Build.BuildId)
+              
+          - script: |
+              # Save images with BuildId tag
+              docker image save lucky-proxy:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-proxy.taged.img.tar
+              docker image save lucky-frontend:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-frontend.taged.img.tar
+              docker image save lucky-movie:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-movie.taged.img.tar
+              docker image save lucky-music:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-music.taged.img.tar
+              docker image save lucky-testing:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-testing.taged.img.tar
+
+              # Save images with latest tag
+              docker image save lucky-proxy:latest -o $(Build.ArtifactStagingDirectory)/lucky-proxy.latest.img.tar
+              docker image save lucky-frontend:latest -o $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar
+              docker image save lucky-movie:latest -o $(Build.ArtifactStagingDirectory)/lucky-movie.latest.img.tar
+              docker image save lucky-music:latest -o $(Build.ArtifactStagingDirectory)/lucky-music.latest.img.tar
+              docker image save lucky-testing:latest -o $(Build.ArtifactStagingDirectory)/lucky-testing.latest.img.tar
+            displayName: Save Docker Images To ArtifactStagingDirectory
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Pipeline Workspace Directory
+            inputs:
+              artifactName: docker-images-dev
+              targetPath: $(Build.ArtifactStagingDirectory)
+
+      - job: BuildProd
+        displayName: Build Prod
+        variables:
+          - group: xldyn-devops-template-ct-prod
+        steps:
+          - checkout: self
+            submodules: true
+
+          - script: |
+              echo "Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)"
+              echo "Build.BuildId: $(Build.BuildId)"
+              echo "environment: $(environment)"
+              echo "Pipeline.Workspace: $(Pipeline.Workspace)"
+              echo "System.DefaultWorkingDirector: $(System.DefaultWorkingDirectory)"
+              echo "System.DefinitionId: $(System.DefinitionId)"
+              echo "System.TeamProject: $(System.TeamProject)"
+              echo "System.TeamProjectId: $(System.TeamProjectId)"
+            displayName: Debug
+
+          - task: DockerCompose@0
+            displayName: Build Docker Images
+            inputs:
+              action: Build services
+              dockerComposeFile: docker-compose.prod.yaml
+              projectName: $(Build.Repository.Name)
+              qualifyImageNames: true
+              additionalImageTags: $(Build.BuildId)
+
+          - script: |
+              # Save images with BuildId tag
+              docker image save lucky-frontend:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-frontend.taged.img.tar
+              docker image save lucky-movie:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-movie.taged.img.tar
+              docker image save lucky-music:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-music.taged.img.tar
+
+              # Save images with latest tag
+              docker image save lucky-frontend:latest -o $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar
+              docker image save lucky-movie:latest -o $(Build.ArtifactStagingDirectory)/lucky-movie.latest.img.tar
+              docker image save lucky-music:latest -o $(Build.ArtifactStagingDirectory)/lucky-music.latest.img.tar
+            displayName: Save Docker Images To ArtifactStagingDirectory
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Pipeline Workspace Directory
+            inputs:
+              artifactName: docker-images-prod
+              targetPath: $(Build.ArtifactStagingDirectory)

@@ -1,0 +1,93 @@
+version: "3"
+services:
+  proxy:
+    image: lucky-proxy
+    build:
+      context: proxy
+      dockerfile: Dockerfile
+    container_name: lucky_proxy
+    hostname: lucky-proxy
+    depends_on:
+      - frontend
+      - movie
+      - music
+    ports:
+      - "800:80"
+    volumes:
+      - ./proxy/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy/config/default.conf:/etc/nginx/conf.d/default.conf
+
+  frontend:
+    image: lucky-frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: lucky_app_frontend
+    hostname: lucky-app-frontend
+    ports:
+      - "801:80"
+    volumes:
+      - ./frontend/app:/app
+      - ./frontend/app/src:/usr/share/nginx/html
+      - ./frontend/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/config/default.conf:/etc/nginx/conf.d/default.conf
+
+  movie:
+    image: lucky-movie
+    build:
+      context: backend/movie
+      dockerfile: Dockerfile
+      args:
+        - PORT=80
+        - FLASK_DEBUG=True
+    restart: always
+    container_name: lucky_app_movie_api
+    hostname: lucky-app-movie
+    ports:
+      - "802:80"
+    volumes:
+      - ./backend/movie/app:/app
+
+  music:
+    image: lucky-music
+    build:
+      context: backend/music
+      dockerfile: docker/Dockerfile.dev
+      args:
+        - PORT=80
+        - ASPNETCORE_ENVIRONMENT=Development
+    restart: always
+    container_name: lucky_app_music_api
+    hostname: lucky-app-music
+    ports:
+      - "803:80"
+    volumes:
+      - ./backend/music:/src
+
+  firefoxdriver:
+    image: selenium/standalone-firefox
+    restart: always
+    container_name: lucky_firefoxdriver
+    hostname: lucky-firefoxdriver
+    depends_on:
+      - proxy
+    ports:
+      - "4444:4444"
+
+  testing:
+    image: lucky-testing
+    build:
+      context: testing
+      dockerfile: Dockerfile
+    restart: always
+    container_name: lucky_testing
+    hostname: lucky-testing
+    depends_on:
+      - proxy
+    volumes:
+      - ./testing/jest.config.js:/app/jest.config.js
+      - ./testing/package.json:/app/package.json
+      - ./testing/scripts:/app/scripts
+      - ./testing/tests:/app/tests
+      - ./testing/tmp:/app/tmp

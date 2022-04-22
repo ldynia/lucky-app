@@ -1,0 +1,118 @@
+{
+  "id": "9178b2f3-20c0-4280-b4fe-ad50b46b6e00",
+  "version": "2.0",
+  "name": "lucky",
+  "url": "http://proxy/",
+  "tests": [{
+    "id": "0de2687b-efdc-40b4-850a-55c0a1f9a6ab",
+    "name": "test frontend",
+    "commands": [{
+      "id": "6e0f6cce-9726-4d8c-9205-f67c3814e193",
+      "comment": "",
+      "command": "open",
+      "target": "http://proxy/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5d9a522a-8ce8-4bae-991e-d1c52881702e",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1936x1056",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "681012f0-413e-465f-b26d-788d5c2ad2f1",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=#recommendation",
+      "targets": [],
+      "value": "Pink Flody - Pulse"
+    }]
+  }, {
+    "id": "e74d2a0f-27d7-4ca1-b901-49a2eaa35edd",
+    "name": "test movie app",
+    "commands": [{
+      "id": "449c8864-eb93-4ba9-a917-945b76f23027",
+      "comment": "",
+      "command": "open",
+      "target": "http://proxy/",
+      "targets": [],
+      "value": "Pink Flody - Pulse"
+    }, {
+      "id": "ee25add7-6d44-4253-8489-95b4396196c4",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1149x908",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1b327feb-1b72-4fe2-aa69-5b8553b89f43",
+      "comment": "",
+      "command": "click",
+      "target": "id=btn-recommend-movie",
+      "targets": [
+        ["id=btn-recommend", "id"],
+        ["css=#btn-recommend", "css:finder"],
+        ["xpath=//button[@id='btn-recommend']", "xpath:attributes"],
+        ["xpath=//button", "xpath:position"],
+        ["xpath=//button[contains(.,'Recommend')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "3ba98e70-f39d-4380-b247-7a80517b33cb",
+      "comment": "",
+      "command": "assertNotText",
+      "target": "css=#recommendation",
+      "targets": [],
+      "value": "Pink Flody - Pulse"
+    }]
+  }, {
+    "id": "a9571644-e3f2-4e66-8974-783ae874da90",
+    "name": "test music app",
+    "commands": [{
+      "id": "a3acac39-34ba-4d89-bb3e-48d742583f1c",
+      "comment": "",
+      "command": "open",
+      "target": "http://proxy/",
+      "targets": [],
+      "value": "Pink Flody - Pulse"
+    }, {
+      "id": "d402064c-5241-4c3f-ad6d-2624bec59bc0",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1149x908",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fabf5e8a-d66b-466f-99f6-19fdb8a31e7f",
+      "comment": "",
+      "command": "click",
+      "target": "id=btn-recommend-music",
+      "targets": [
+        ["id=btn-recommend", "id"],
+        ["css=#btn-recommend", "css:finder"],
+        ["xpath=//button[@id='btn-recommend']", "xpath:attributes"],
+        ["xpath=//button", "xpath:position"],
+        ["xpath=//button[contains(.,'Recommend')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c9487169-016a-46a6-ac58-f3825c8842da",
+      "comment": "",
+      "command": "assertNotText",
+      "target": "css=#recommendation",
+      "targets": [],
+      "value": "Pink Flody - Pulse"
+    }]
+  }],
+  "suites": [{
+    "id": "daf9b67a-d9bb-4a08-bae1-56c59f95f8e0",
+    "name": "Lucky App Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["0de2687b-efdc-40b4-850a-55c0a1f9a6ab", "e74d2a0f-27d7-4ca1-b901-49a2eaa35edd", "a9571644-e3f2-4e66-8974-783ae874da90"]
+  }],
+  "urls": ["http://proxy/"],
+  "plugins": []
+}

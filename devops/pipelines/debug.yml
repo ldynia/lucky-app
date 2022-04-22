@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: UnitTestDev
+    displayName: Unit Test Dev
+    jobs:
+      - job: UnitTestDev
+        variables: 
+          - group: xldyn-devops-template-ct-dev
+        displayName: Unit Test Dev
+        steps:
+          - checkout: self
+            submodules: true
+
+          - script: |
+              echo $(environment)
+              echo frontend
+              ls -l frontend
+              
+              echo backend/movie
+              ls -l backend/movie
+              
+              echo backend/music
+              ls -l backend/music
+            displayName: Debug

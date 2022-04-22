@@ -1,0 +1,53 @@
+# Frontend App Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: lucky-app
+  labels:
+    app: frontend-ms
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: movie
+  type: ClusterIP
+
+# Movie App Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie
+  namespace: lucky-app
+  labels:
+    app: movie-ms
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: movie-ms
+  type: ClusterIP
+
+# Music App Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music
+  namespace: lucky-app
+  labels:
+    app: music-ms
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: music-ms
+  type: ClusterIP

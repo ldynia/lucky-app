@@ -1,0 +1,80 @@
+# Frontend Microserice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-ms
+  namespace: lucky-app
+  labels:
+    app: frontend-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-ms
+  template:
+    metadata:
+      labels:
+        app: frontend-ms
+    spec:
+      containers:
+      - name: frontend
+        image: eartsandbox.azurecr.io/lucky-frontend:$(Build.BuildId)
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+        - name: eartsandbox.azurecr.io
+
+# Movie Microserice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-ms
+  namespace: lucky-app
+  labels:
+    app: movie-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-ms
+  template:
+    metadata:
+      labels:
+        app: movie-ms
+    spec:
+      containers:
+      - name: movie
+        image: eartsandbox.azurecr.io/lucky-movie:$(Build.BuildId)
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+        - name: eartsandbox.azurecr.io
+
+# Music Microserice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-ms
+  namespace: lucky-app
+  labels:
+    app: music-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: music-ms
+  template:
+    metadata:
+      labels:
+        app: music-ms
+    spec:
+      containers:
+      - name: music
+        image: eartsandbox.azurecr.io/lucky-music:$(Build.BuildId)
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+        - name: eartsandbox.azurecr.io

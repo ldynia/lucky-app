@@ -1,0 +1,221 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: devops-template-ct
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: xldyn-devops-template-ci
+      trigger:
+        branches:
+          include:
+            - main
+
+variables:
+  - name: RED
+    value: '\033[0;31m'
+  - name: GREEN
+    value: '\033[0;32m'
+  - name: YELLOW
+    value: '\033[0;33m'
+  - name: NC
+    value: '\033[0m'
+
+stages:
+  - stage: UnitTest
+    displayName: Unit Tests
+    jobs:
+      - job: UnitTestFrontendApp
+        displayName: Frontend App - Unit Test
+        variables:
+          - group: xldyn-devops-template-ct-dev
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Docker Image From CI Pipeline Artifact
+            inputs:
+              artifact: docker-images-dev
+              path: $(Build.ArtifactStagingDirectory)
+              pipeline: xldyn-devops-template-ci
+              project: $(System.TeamProject)
+              runVersion: latest
+              source: specific
+              patterns: |
+                lucky-frontend.latest.img.tar
+
+          - task: Docker@2
+            displayName: Load Docker Image
+            inputs:
+              command: load
+              arguments: --input $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar
+
+          - script: |
+              printf "${YELLOW}Run Frontend App Container${NC}\n"
+              docker run \
+                --rm \
+                --detach \
+                --name lucky-frontend-app \
+                lucky-frontend:latest
+
+              printf "${YELLOW}Unit Testing Started${NC}\n"
+              docker exec lucky-frontend-app /app/scripts/test.sh
+              UNIT_TEST_EXIT_CODE=$?
+              printf "${YELLOW}Unit Testing Ended${NC}\n"
+              exit $UNIT_TEST_EXIT_CODE
+            displayName: Run Unit Tests
+
+      - job: UnitTestMovieApp
+        displayName: Movie App - Unit Test
+        variables:
+          - group: xldyn-devops-template-ct-dev
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Docker Image From CI Pipeline Artifact
+            inputs:
+              artifact: docker-images-dev
+              path: $(Build.ArtifactStagingDirectory)
+              pipeline: xldyn-devops-template-ci
+              project: $(System.TeamProject)
+              runVersion: latest
+              source: specific
+              patterns: |
+                lucky-movie.latest.img.tar
+
+          - task: Docker@2
+            displayName: Load Docker Image
+            inputs:
+              command: load
+              arguments: --input $(Build.ArtifactStagingDirectory)/lucky-movie.latest.img.tar
+
+          - script: |
+              printf "${YELLOW}Run Movie App Container${NC}\n"
+              docker run \
+                --rm \
+                --detach \
+                --name lucky-movie-app \
+                lucky-movie:latest
+
+              printf "${YELLOW}Unit Testing Started${NC}\n"
+              docker exec lucky-movie-app /app/scripts/test.sh
+              UNIT_TEST_EXIT_CODE=$?
+              printf "${YELLOW}Unit Testing Ended${NC}\n"
+              
+              printf "${YELLOW}Copy container coverage dir${NC}\n"
+              docker cp lucky-movie-app:/tmp/coverage coverage/
+              
+              exit $UNIT_TEST_EXIT_CODE
+            displayName: Run Unit Tests
+
+          - task: PublishCodeCoverageResults@1
+            displayName: Publish Code Coverage
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: "**/coverage.xml"
+              reportDirectory: "**/htmlcov"
+
+      - job: UnitTestMusicApp
+        displayName: Music App - Unit Test
+        variables:
+          - group: xldyn-devops-template-ct-dev
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Docker Image From CI Pipeline Artifact
+            inputs:
+              artifact: docker-images-dev
+              path: $(Build.ArtifactStagingDirectory)
+              pipeline: xldyn-devops-template-ci
+              project: $(System.TeamProject)
+              runVersion: latest
+              source: specific
+              patterns: |
+                lucky-music.latest.img.tar
+
+          - task: Docker@2
+            displayName: Load Docker Image
+            inputs:
+              command: load
+              arguments: --input $(Build.ArtifactStagingDirectory)/lucky-music.latest.img.tar
+          
+          - script: |
+              printf "${YELLOW}Run Music App Container${NC}\n"
+              docker run \
+                --rm \
+                --detach \
+                --name lucky-music-app \
+                lucky-music:latest
+
+              printf "${YELLOW}Unit Testing Started${NC}\n"
+              docker exec lucky-music-app /src/scripts/test.sh
+              UNIT_TEST_EXIT_CODE=$?
+              printf "${YELLOW}Unit Testing Ended${NC}\n"
+
+              printf "${YELLOW}Copy container coverage dir${NC}\n"
+              docker cp lucky-music-app:/tmp/coverage coverage/
+              
+              exit $UNIT_TEST_EXIT_CODE
+            displayName: Run Unit Tests
+
+          - task: PublishCodeCoverageResults@1
+            displayName: Publish Code Coverage
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: "**/coverage.cobertura.xml"
+              reportDirectory: "**/htmlcov"
+
+  - stage: E2ETesting
+    # dependsOn: UnitTest
+    displayName: End to End Testing
+    jobs:
+      - job: E2ETesting
+        displayName: End to End Testing
+        variables:
+          - group: xldyn-devops-template-ct-dev
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Dev Artifact(s) From CI Pipeline
+            inputs:
+              artifact: docker-images-dev
+              path: $(Build.ArtifactStagingDirectory)
+              pipeline: xldyn-devops-template-ci
+              project: $(System.TeamProject)
+              runVersion: latest
+              source: specific
+              patterns: |
+                *.latest.img.tar
+
+          - script: |
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-proxy.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-movie.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-music.latest.img.tar
+              docker load --input $(Build.ArtifactStagingDirectory)/lucky-testing.latest.img.tar
+              docker images
+            displayName: Load Docker Image(s)
+
+          - task: DockerCompose@0
+            displayName: Run Microservices
+            inputs:
+              action: Run services
+              dockerComposeFile: docker-compose.testing.e2e.yaml
+              projectName: $(Build.Repository.Name)
+              qualifyImageNames: false
+              buildImages: false
+              abortOnContainerExit: true
+              detached: true
+
+          - script: |
+              sleep 15s
+              docker ps
+            
+              printf "${YELLOW}E2E Testing Started${NC}\n"
+              docker exec lucky_testing /app/scripts/test.sh
+              UNIT_TEST_EXIT_CODE=$?
+              printf "${YELLOW}E2E Testing Ended${NC}\n"
+              
+              exit $UNIT_TEST_EXIT_CODE
+            displayName: E2E Test Microservices
