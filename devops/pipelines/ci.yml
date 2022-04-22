@@ -22,22 +22,11 @@ stages:
             submodules: true
             displayName: Initialize Git Repo
 
-          - script: |
-              echo "Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)"
-              echo "Build.BuildId: $(Build.BuildId)"
-              echo "environment: $(environment)"
-              echo "Pipeline.Workspace: $(Pipeline.Workspace)"
-              echo "System.DefaultWorkingDirector: $(System.DefaultWorkingDirectory)"
-              echo "System.DefinitionId: $(System.DefinitionId)"
-              echo "System.TeamProject: $(System.TeamProject)"
-              echo "System.TeamProjectId: $(System.TeamProjectId)"
-            displayName: Debug
-
           - task: DockerCompose@0
             displayName: Build Docker Images
             inputs:
               action: Build services
-              dockerComposeFile: docker-compose.dev.yaml
+              dockerComposeFile: '**/docker-compose.dev.yaml'
               projectName: $(Build.Repository.Name)
               qualifyImageNames: true
               additionalImageTags: $(Build.BuildId)
@@ -72,22 +61,11 @@ stages:
           - checkout: self
             submodules: true
 
-          - script: |
-              echo "Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)"
-              echo "Build.BuildId: $(Build.BuildId)"
-              echo "environment: $(environment)"
-              echo "Pipeline.Workspace: $(Pipeline.Workspace)"
-              echo "System.DefaultWorkingDirector: $(System.DefaultWorkingDirectory)"
-              echo "System.DefinitionId: $(System.DefinitionId)"
-              echo "System.TeamProject: $(System.TeamProject)"
-              echo "System.TeamProjectId: $(System.TeamProjectId)"
-            displayName: Debug
-
           - task: DockerCompose@0
             displayName: Build Docker Images
             inputs:
               action: Build services
-              dockerComposeFile: docker-compose.prod.yaml
+              dockerComposeFile: '**/docker-compose.prod.yaml'
               projectName: $(Build.Repository.Name)
               qualifyImageNames: true
               additionalImageTags: $(Build.BuildId)

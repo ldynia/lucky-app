@@ -201,7 +201,7 @@ stages:
             displayName: Run Microservices
             inputs:
               action: Run services
-              dockerComposeFile: docker-compose.testing.e2e.yaml
+              dockerComposeFile: '**/docker-compose.testing.e2e.yaml'
               projectName: $(Build.Repository.Name)
               qualifyImageNames: false
               buildImages: false

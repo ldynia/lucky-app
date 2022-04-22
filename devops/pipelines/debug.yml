@@ -20,15 +20,23 @@ stages:
         steps:
           - checkout: self
             submodules: true
-
+          
           - script: |
-              echo $(environment)
-              echo frontend
+              echo "Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)"
+              echo "Build.BuildId: $(Build.BuildId)"
+              echo "environment: $(environment)"
+              echo "Pipeline.Workspace: $(Pipeline.Workspace)"
+              echo "System.DefaultWorkingDirector: $(System.DefaultWorkingDirectory)"
+              echo "System.DefinitionId: $(System.DefinitionId)"
+              echo "System.TeamProject: $(System.TeamProject)"
+              echo "System.TeamProjectId: $(System.TeamProjectId)"
+
+              echo "frontend"
               ls -l frontend
               
-              echo backend/movie
+              echo "backend/movie"
               ls -l backend/movie
               
-              echo backend/music
+              echo "backend/music"
               ls -l backend/music
             displayName: Debug

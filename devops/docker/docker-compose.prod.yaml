@@ -3,7 +3,7 @@ services:
   proxy:
     image: lucky-proxy
     build:
-      context: proxy
+      context: ../../services/proxy
       dockerfile: Dockerfile
     container_name: lucky_proxy
     hostname: lucky-proxy
@@ -14,13 +14,13 @@ services:
     ports:
       - "800:80"
     volumes:
-      - ./proxy/config/nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy/config/default.conf:/etc/nginx/conf.d/default.conf
+      - ../../services/proxy/config/nginx.conf:/etc/nginx/nginx.conf
+      - ../../services/proxy/config/default.conf:/etc/nginx/conf.d/default.conf
 
   frontend:
     image: lucky-frontend
     build:
-      context: frontend
+      context: ../../services/frontend
       dockerfile: Dockerfile
     restart: always
     container_name: lucky_frontend
@@ -28,15 +28,15 @@ services:
     ports:
       - "801:80"
     volumes:
-      - ./frontend/app:/app
-      - ./frontend/app/src:/usr/share/nginx/html
-      - ./frontend/config/nginx.conf:/etc/nginx/nginx.conf
-      - ./frontend/config/default.conf:/etc/nginx/conf.d/default.conf
+      - ../../services/frontend/app:/app
+      - ../../services/frontend/app/src:/usr/share/nginx/html
+      - ../../services/frontend/config/nginx.conf:/etc/nginx/nginx.conf
+      - ../../services/frontend/config/default.conf:/etc/nginx/conf.d/default.conf
 
   movie:
     image: lucky-movie
     build:
-      context: backend/movie
+      context: ../../services/backend/movie
       dockerfile: Dockerfile
       args:
         - PORT=80
@@ -47,12 +47,12 @@ services:
     ports:
       - "802:80"
     volumes:
-      - ./backend/movie/app:/app
+      - ../../services/backend/movie/app:/app
 
   music:
     image: lucky-music
     build:
-      context: backend/music
+      context: ../../services/backend/music
       dockerfile: docker/Dockerfile.prod
       args:
         - PORT=80

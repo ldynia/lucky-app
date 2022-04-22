@@ -5,9 +5,11 @@
     ```console
     git clone --recursive git@github.com:ldynia/lucky-app.git
     cd lucky-app
-    docker-compose -f docker-compose.dev.yaml build
-    docker-compose -f docker-compose.dev.yaml build $(cat build-args.dev | while read line; do out+="--build-arg $line"; done; echo $out; out="")
-    docker-compose -f docker-compose.dev.yaml up
+    docker-compose -f devops/docker/docker-compose.dev.yaml build
+    docker-compose -f devops/docker/docker-compose.prod.yaml build
+    docker-compose -f devops/docker/docker-compose.dev.yaml build $(cat build-args.dev | while read line; do out+="--build-arg $line"; done; echo $out; out="")
+    docker-compose -f devops/docker/docker-compose.dev.yaml up
+    docker-compose -f devops/docker/docker-compose.testing.e2e.yaml up
     ```
 
 1.  Open app in browser and test all applications:

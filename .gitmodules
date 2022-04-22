@@ -1,9 +1,9 @@
 [submodule "frontend"]
-	path = frontend
+	path = services/frontend
 	url = https://github.com/ldynia/web-lucky-frontend.git
-[submodule "backend/movie"]
-	path = backend/movie
+[submodule "movie"]
+	path = services/backend/movie
 	url = https://github.com/ldynia/flask-lucky-movie.git
-[submodule "backend/music"]
-	path = backend/music
+[submodule "music"]
+	path = services/backend/music
 	url = https://github.com/ldynia/dotnet-lucky-music.git
