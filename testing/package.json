@@ -1,10 +1,8 @@
 {
   "scripts": {
-    "test-all": "/app/scripts/test.sh",
     "test-jest": "jest /app/tests/javascript",
-    "test-py": "pytest /app/tests/python/e2e_test.py",
-    "test-selenium-localhost": "selenium-side-runner --server http://firefoxdriver:4444/wd/hub --capabilities 'browserName=firefox' /app/tests/selenium/localhost.lucky_app.side",
-    "test-selenium-proxy": "selenium-side-runner --server http://firefoxdriver:4444/wd/hub --capabilities 'browserName=firefox' /app/tests/selenium/proxy.lucky_app.side"
+    "test-pytest": "pytest /app/tests/python/e2e_test.py",
+    "test-selenium": "selenium-side-runner --server http://firefoxdriver:4444/wd/hub --capabilities 'browserName=firefox' /app/tests/selenium/proxy.lucky_app.side"
   },
   "dependencies": {
     "fs": "^0.0.1-security",
