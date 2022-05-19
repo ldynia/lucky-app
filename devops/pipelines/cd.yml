@@ -24,9 +24,9 @@ variables:
   - name: acr
     value: eartsandbox.azurecr.io
   - name: adoEnvironment
-    value: eart-sandbox
+    value: eart-green-aks-dev-we # eart-sandbox
   - name: namespace
-    value: lucky-app
+    value: sandbox
   - name: environment
     ${{ if not(eq(parameters.environment, 'none')) }}:
       value: ${{ parameters.environment }}
