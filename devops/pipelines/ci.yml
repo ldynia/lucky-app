@@ -32,13 +32,6 @@ stages:
               additionalImageTags: $(Build.BuildId)
               
           - script: |
-              # Save images with BuildId tag
-              docker image save lucky-proxy:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-proxy.taged.img.tar
-              docker image save lucky-frontend:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-frontend.taged.img.tar
-              docker image save lucky-movie:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-movie.taged.img.tar
-              docker image save lucky-music:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-music.taged.img.tar
-              docker image save lucky-testing:$(Build.BuildId) -o $(Build.ArtifactStagingDirectory)/lucky-testing.taged.img.tar
-
               # Save images with latest tag
               docker image save lucky-proxy:latest -o $(Build.ArtifactStagingDirectory)/lucky-proxy.latest.img.tar
               docker image save lucky-frontend:latest -o $(Build.ArtifactStagingDirectory)/lucky-frontend.latest.img.tar

@@ -4,12 +4,9 @@
 
 ```bash
 docker exec -it lucky_testing bash
-npm run
-npm run test-all
-npm run test-py
 npm run test-jest
-npm run test-selenium-proxy
-npm run test-selenium-localhost
+npm run test-pytest
+npm run test-selenium
 ```
 
 ### Manual

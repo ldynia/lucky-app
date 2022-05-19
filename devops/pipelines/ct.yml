@@ -61,6 +61,8 @@ stages:
                 --detach \
                 --name lucky-frontend-app \
                 lucky-frontend:latest
+              
+              sleep 3s
 
               printf "${YELLOW}Unit Testing Started${NC}\n"
               docker exec lucky-frontend-app /app/scripts/test.sh
@@ -153,10 +155,11 @@ stages:
               docker exec lucky-music-app /src/scripts/test.sh
               UNIT_TEST_EXIT_CODE=$?
               printf "${YELLOW}Unit Testing Ended${NC}\n"
-
+              
+              Comment until you fix the stoping container error
               printf "${YELLOW}Copy container coverage dir${NC}\n"
               docker cp lucky-music-app:/tmp/coverage coverage/
-              
+
               exit $UNIT_TEST_EXIT_CODE
             displayName: Run Unit Tests
 
@@ -168,7 +171,7 @@ stages:
               reportDirectory: "**/htmlcov"
 
   - stage: E2ETesting
-    # dependsOn: UnitTest
+    dependsOn: UnitTest
     displayName: End to End Testing
     jobs:
       - job: E2ETesting

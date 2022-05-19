@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-ms
-  namespace: lucky-app
+  namespace: sandbox
   labels:
     app: frontend-ms
 spec:
@@ -31,7 +31,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: movie-ms
-  namespace: lucky-app
+  namespace: sandbox
   labels:
     app: movie-ms
 spec:
@@ -58,7 +58,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: music-ms
-  namespace: lucky-app
+  namespace: sandbox
   labels:
     app: music-ms
 spec:

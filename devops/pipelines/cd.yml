@@ -24,7 +24,7 @@ variables:
   - name: acr
     value: eartsandbox.azurecr.io
   - name: adoEnvironment
-    value: eart-green-aks-dev-we # eart-sandbox
+    value: eart-green-aks-dev
   - name: namespace
     value: sandbox
   - name: environment
