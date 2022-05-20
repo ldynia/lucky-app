@@ -39,11 +39,11 @@ stages:
         displayName: Migration
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: Download Docker Images From CI Pipeline Artifact(s)
+            displayName: Download Docker Images From CB Pipeline Artifact(s)
             inputs:
               artifact: docker-images-${{ variables.environment }}
               path: $(Build.ArtifactStagingDirectory)
-              pipeline: xldyn-devops-template-ci
+              pipeline: xldyn-devops-template-cb
               project: $(System.TeamProject)
               runVersion: latest
               source: specific

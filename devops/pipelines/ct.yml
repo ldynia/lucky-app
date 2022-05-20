@@ -11,7 +11,7 @@ pool:
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: xldyn-devops-template-ci
+      source: xldyn-devops-template-cb
       trigger:
         branches:
           include:
@@ -41,7 +41,7 @@ stages:
             inputs:
               artifact: docker-images-dev
               path: $(Build.ArtifactStagingDirectory)
-              pipeline: xldyn-devops-template-ci
+              pipeline: xldyn-devops-template-cb
               project: $(System.TeamProject)
               runVersion: latest
               source: specific
@@ -77,11 +77,11 @@ stages:
           - group: xldyn-devops-template-ct-dev
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: Download Docker Image From CI Pipeline Artifact
+            displayName: Download Docker Image From CB Pipeline Artifact
             inputs:
               artifact: docker-images-dev
               path: $(Build.ArtifactStagingDirectory)
-              pipeline: xldyn-devops-template-ci
+              pipeline: xldyn-devops-template-cb
               project: $(System.TeamProject)
               runVersion: latest
               source: specific
@@ -130,7 +130,7 @@ stages:
             inputs:
               artifact: docker-images-dev
               path: $(Build.ArtifactStagingDirectory)
-              pipeline: xldyn-devops-template-ci
+              pipeline: xldyn-devops-template-cb
               project: $(System.TeamProject)
               runVersion: latest
               source: specific
@@ -156,9 +156,9 @@ stages:
               UNIT_TEST_EXIT_CODE=$?
               printf "${YELLOW}Unit Testing Ended${NC}\n"
               
-              Comment until you fix the stoping container error
-              printf "${YELLOW}Copy container coverage dir${NC}\n"
-              docker cp lucky-music-app:/tmp/coverage coverage/
+              # Comment until you fix the stoping container error
+              # printf "${YELLOW}Copy container coverage dir${NC}\n"
+              # docker cp lucky-music-app:/tmp/coverage coverage/
 
               exit $UNIT_TEST_EXIT_CODE
             displayName: Run Unit Tests
@@ -184,7 +184,7 @@ stages:
             inputs:
               artifact: docker-images-dev
               path: $(Build.ArtifactStagingDirectory)
-              pipeline: xldyn-devops-template-ci
+              pipeline: xldyn-devops-template-cb
               project: $(System.TeamProject)
               runVersion: latest
               source: specific
